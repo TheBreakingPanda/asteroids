@@ -1,3 +1,4 @@
+
 import inspect
 import json
 import math
@@ -7,28 +8,30 @@ __all__ = ["log_state", "log_event"]
 
 _FPS = 60
 _MAX_SECONDS = 16
-_SPRITE_SAMPLE_LIMIT = 10  # Maximum number of sprites to log per group
+_SPRITE_SAMPLE_LIMIT = 10   # Maximum number of sprites to log per group per snapshot
 
 _frame_count = 0
-_state_log_initialized = False
-_event_log_initialized = False
+_state_log_initialized = False   # Tracks whether the state log file has been created this run
+_event_log_initialized = False   # Tracks whether the event log file has been created this run
 _start_time = datetime.now()
 
 
+# Logs a snapshot of the current game state once per second, up to _MAX_SECONDS
 def log_state():
     global _frame_count, _state_log_initialized
 
-    # Stop logging after `_MAX_SECONDS` seconds
+    # Stop logging once the time limit is reached
     if _frame_count > _FPS * _MAX_SECONDS:
         return
 
-    # Take a snapshot approx. once per second
+    # Increment frame counter; only snapshot on exact second boundaries
     _frame_count += 1
     if _frame_count % _FPS != 0:
         return
 
     now = datetime.now()
 
+    # Walk up the call stack to access the caller's local variables
     frame = inspect.currentframe()
     if frame is None:
         return
@@ -43,9 +46,11 @@ def log_state():
     game_state = {}
 
     for key, value in local_vars.items():
+        # Detect the pygame display surface by checking for get_size
         if "pygame" in str(type(value)) and hasattr(value, "get_size"):
             screen_size = value.get_size()
 
+        # Detect sprite groups and serialize up to _SPRITE_SAMPLE_LIMIT sprites
         if hasattr(value, "__class__") and "Group" in value.__class__.__name__:
             sprites_data = []
 
@@ -53,6 +58,7 @@ def log_state():
                 if i >= _SPRITE_SAMPLE_LIMIT:
                     break
 
+                # Collect available attributes from each sprite
                 sprite_info = {"type": sprite.__class__.__name__}
 
                 if hasattr(sprite, "position"):
@@ -77,6 +83,7 @@ def log_state():
 
             game_state[key] = {"count": len(value), "sprites": sprites_data}
 
+        # Fallback: capture individual sprite objects if no groups were found yet
         if len(game_state) == 0 and hasattr(value, "position"):
             sprite_info = {"type": value.__class__.__name__}
 
@@ -107,7 +114,7 @@ def log_state():
         **game_state,
     }
 
-    # New log file on each run
+    # Write mode: 'w' to start a fresh log on each run, 'a' for subsequent writes
     mode = "w" if not _state_log_initialized else "a"
     with open("game_state.jsonl", mode) as f:
         f.write(json.dumps(entry) + "\n")
@@ -115,6 +122,7 @@ def log_state():
     _state_log_initialized = True
 
 
+# Logs a discrete game event (e.g. player_hit) with optional extra fields
 def log_event(event_type, **details):
     global _event_log_initialized
 
@@ -128,6 +136,7 @@ def log_event(event_type, **details):
         **details,
     }
 
+    # Write mode: 'w' to start a fresh log on each run, 'a' for subsequent writes
     mode = "w" if not _event_log_initialized else "a"
     with open("game_events.jsonl", mode) as f:
         f.write(json.dumps(event) + "\n")

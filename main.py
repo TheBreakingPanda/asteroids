@@ -1,3 +1,4 @@
+
 import sys
 
 import pygame
@@ -14,24 +15,26 @@ def main():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
 
+    # Sprite groups — updatable runs logic, drawable renders, asteroids and shots track collisions
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
 
+    # Assign groups via class-level containers so new instances register automatically
     Asteroid.containers = (asteroids, updatable, drawable)
     Shot.containers = (shots, updatable, drawable)
     AsteroidField.containers = updatable
     asteroid_field = AsteroidField()
 
     Player.containers = (updatable, drawable)
-
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
-    dt = 0
+    dt = 0  # Delta time in seconds; 0 on first frame
 
+    # Main game loop
     while True:
-        log_state()
+        log_state()  # Periodic debug snapshot of game state
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -39,20 +42,20 @@ def main():
 
         updatable.update(dt)
 
+        # Check every asteroid against the player for a collision
         for asteroid in asteroids:
             if asteroid.collides_with(player):
                 log_event("player_hit")
                 print("Game over!")
                 sys.exit()
 
+        # Render: clear screen, draw all sprites, then present
         screen.fill("black")
-
         for obj in drawable:
             obj.draw(screen)
-
         pygame.display.flip()
 
-        # limit the framerate to 60 FPS
+        # Cap at 60 FPS and convert ms → seconds for dt
         dt = clock.tick(60) / 1000
 
 
