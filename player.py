@@ -1,7 +1,8 @@
 import pygame
 
 import circleshape
-from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_SPEED, PLAYER_TURN_SPEED
+from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_SPEED, PLAYER_TURN_SPEED, SHOT_SPEED
+from shot import Shot
 
 
 class Player(circleshape.CircleShape):
@@ -46,3 +47,11 @@ class Player(circleshape.CircleShape):
             self.move(dt)
         if keys[pygame.K_s]:
             self.move(-dt)
+        if keys[pygame.K_SPACE]:
+             self.shoot()
+    
+    def shoot(self):
+        """Create a new shot moving in the direction the ship is facing."""
+        shot = Shot(self.position.x, self.position.y, self.rotation)
+        shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * SHOT_SPEED
+    

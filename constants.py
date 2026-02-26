@@ -7,6 +7,8 @@ PLAYER_RADIUS = 20          # Collision radius of the player ship
 LINE_WIDTH = 2              # Stroke width for drawing the ship
 PLAYER_TURN_SPEED = 300     # Rotation speed in degrees per second
 PLAYER_SPEED = 200          # Movement speed in pixels per second
+SHOT_RADIUS = 5           # Collision radius of the player's shots
+SHOT_SPEED = 500          # Speed of the player's shots in pixels per second
 
 # --- Asteroids ---
 ASTEROID_MIN_RADIUS = 20                            # Radius of the smallest asteroid (tier 1)
