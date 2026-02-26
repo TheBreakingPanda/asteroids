@@ -1,7 +1,10 @@
+import sys
 import pygame
+
 from asteroid import Asteroid
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT
-from logger import log_state
+from asteroidfield import AsteroidField
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH
+from logger import log_state, log_event
 from player import Player
 
 
@@ -28,6 +31,10 @@ def main():
     # Assign groups via class-level containers so new instances register automatically
     Player.containers = (updatable, drawable)
     Asteroid.containers = (updatable, drawable, asteroids)
+    AsteroidField.containers = (updatable,)
+
+    # Create the asteroid field (registers itself into the updatable group)
+    asteroid_field = AsteroidField()
 
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
@@ -42,9 +49,18 @@ def main():
         # Render: clear → update logic → draw sprites → present
         screen.fill("black")
         updatable.update(dt)
+
+        # Check for collisions between player and asteroids
+        for asteroid in asteroids:
+            if player.collides_with(asteroid):
+                log_event("player_hit")
+                print("Player hit an asteroid! Game over!.")
+                sys.exit()
+
         for drawable_sprite in drawable:
             drawable_sprite.draw(screen)
         pygame.display.flip()
+    
 
         dt = clock.tick(60) / 1000  # Cap at 60 FPS; convert ms → seconds
 

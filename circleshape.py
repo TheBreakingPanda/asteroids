@@ -27,3 +27,9 @@ class CircleShape(pygame.sprite.Sprite):
     def update(self, dt):
         """Override in subclass to update state each frame."""
         pass
+
+    def collides_with(self, other):
+        """Return True if this object collides with another CircleShape."""
+        distance_squared = (self.position - other.position).length_squared()
+        radius_sum = self.radius + other.radius
+        return distance_squared < radius_sum * radius_sum
