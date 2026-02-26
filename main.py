@@ -1,6 +1,7 @@
 import pygame
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from logger import log_state
+from player import Player
 
 
 
@@ -20,6 +21,10 @@ def main():
     # clock will help us cap framerate and compute delta time
     clock = pygame.time.Clock()
     dt = 0
+
+    # create the player centered on the screen
+    player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+
     
     # ---------- main game loop ----------
     while True:
@@ -31,8 +36,9 @@ def main():
             if event.type == pygame.QUIT:
                 return
 
-        # draw frame: clear screen to black then update display
+        # draw frame: clear screen to black then render objects
         screen.fill("black")
+        player.draw(screen)
         pygame.display.flip()
 
         # limit to 60 fps and compute delta time in seconds
