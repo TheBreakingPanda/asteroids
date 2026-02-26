@@ -49,6 +49,15 @@ def main():
                 print("Game over!")
                 sys.exit()
 
+        # Check every shot against every asteroid for collisions
+        for shot in shots:
+            for asteroid in asteroids:
+                if shot.collides_with(asteroid):
+                    log_event("asteroid_shot")
+                    shot.kill()  # Remove the shot from all groups
+                    asteroid.kill()  # Remove the asteroid from all groups
+                    break  # A shot can only hit one asteroid, so stop checkingw
+
         # Render: clear screen, draw all sprites, then present
         screen.fill("black")
         for obj in drawable:
