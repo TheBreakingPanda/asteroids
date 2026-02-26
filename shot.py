@@ -1,20 +1,14 @@
 import pygame
-
 from circleshape import CircleShape
+from constants import LINE_WIDTH, SHOT_RADIUS
 
 
 class Shot(CircleShape):
-    """Represents a shot fired by the player."""
-    def __init__(self, x, y, angle):
-        super().__init__(x, y, radius=5)
-        self.speed = 10
-        self.angle = angle
-    
+    def __init__(self, x, y):
+        super().__init__(x, y, SHOT_RADIUS)
+
     def draw(self, screen):
-        """Draw the shot as a small white circle."""
-        pygame.draw.circle(screen, "white", self.position, self.radius)
-    
+        pygame.draw.circle(screen, "white", self.position, self.radius, LINE_WIDTH)
+
     def update(self, dt):
-        """Move the shot in the direction of its angle."""
-        direction = pygame.Vector2(0, -1).rotate(self.angle)
-        self.position += direction * self.speed * dt
+        self.position += self.velocity * dt
