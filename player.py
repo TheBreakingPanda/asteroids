@@ -3,47 +3,46 @@ import pygame
 import circleshape
 from constants import PLAYER_RADIUS, LINE_WIDTH, PLAYER_SPEED, PLAYER_TURN_SPEED
 
+
 class Player(circleshape.CircleShape):
+    """Player-controlled ship represented as a triangle."""
+
+    rotation = 0  # Current heading in degrees; 0 points down the +Y axis
+
     def __init__(self, x, y):
-        # initialize the base circle with the fixed player radius
         super().__init__(x, y, PLAYER_RADIUS)
 
-        # in the Player class
     def triangle(self):
+        """Return the three vertices of the ship triangle based on current position and rotation."""
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
-        a = self.position + forward * self.radius
-        b = self.position - forward * self.radius - right
-        c = self.position - forward * self.radius + right
+        a = self.position + forward * self.radius          # Nose
+        b = self.position - forward * self.radius - right  # Rear left
+        c = self.position - forward * self.radius + right  # Rear right
         return [a, b, c]
 
     def draw(self, screen):
-        # override CircleShape.draw to render as a triangle
+        """Render the ship as a white triangle outline."""
         pygame.draw.polygon(screen, "white", self.triangle(), LINE_WIDTH)
 
     def rotate(self, direction, dt):
-        # direction is -1 for left, +1 for right
+        """Rotate the ship. direction: -1 = left, +1 = right."""
         self.rotation += direction * PLAYER_TURN_SPEED * dt
 
-    rotation = 0
+    def move(self, dt):
+        """Thrust along the current heading. Negative dt moves in reverse."""
+        forward = pygame.Vector2(0, 1).rotate(self.rotation)
+        self.position += forward * PLAYER_SPEED * dt
 
     def update(self, dt):
+        """Poll input and apply movement each frame."""
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_a]:
             self.rotate(-1, dt)
-
         if keys[pygame.K_d]:
             self.rotate(1, dt)
-        
         if keys[pygame.K_w]:
             self.move(dt)
-
         if keys[pygame.K_s]:
             self.move(-dt)
-
-    def move(self, dt):
-        unit_vector = pygame.Vector2(0, 1)
-        rotated_vector = unit_vector.rotate(self.rotation)
-        rotated_with_speed_vector = rotated_vector * PLAYER_SPEED * dt
-        self.position += rotated_with_speed_vector

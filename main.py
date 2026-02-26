@@ -1,58 +1,52 @@
 import pygame
+from asteroid import Asteroid
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from logger import log_state
 from player import Player
 
 
-
-
 def main():
-    # initialize all imported pygame modules
+    """Initialize the game, run the main loop, and handle shutdown."""
+
     pygame.init()
 
-    # debug printouts for verification
+    # Debug: confirm pygame version and screen dimensions on startup
     print("Starting Asteroids with pygame version: " + pygame.version.ver)
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
 
-    # create the main display surface (the game window)
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    # clock will help us cap framerate and compute delta time
     clock = pygame.time.Clock()
-    dt = 0
+    dt = 0  # Delta time in seconds; 0 on first frame
 
-    # create sprite groups for updating and drawing
+    # Sprite groups — updatable runs logic, drawable renders, asteroids tracks collisions
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
+    asteroids = pygame.sprite.Group()
 
-    # set up the Player class to automatically add instances to these groups
+    # Assign groups via class-level containers so new instances register automatically
     Player.containers = (updatable, drawable)
+    Asteroid.containers = (updatable, drawable, asteroids)
 
-    # create the player centered on the screen
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
-    
-    # ---------- main game loop ----------
+    # ---------- Main Game Loop ----------
     while True:
-        # log current state for debugging & analysis
-        log_state()
+        log_state()  # Debug snapshot of current game state
 
-        # process pending events so the window remains responsive
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
 
-        # draw frame: clear screen to black then render objects
+        # Render: clear → update logic → draw sprites → present
         screen.fill("black")
         updatable.update(dt)
         for drawable_sprite in drawable:
             drawable_sprite.draw(screen)
         pygame.display.flip()
 
-        # limit to 60 fps and compute delta time in seconds
-        dt = clock.tick(60) / 1000
-        
+        dt = clock.tick(60) / 1000  # Cap at 60 FPS; convert ms → seconds
 
 
 if __name__ == "__main__":
