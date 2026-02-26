@@ -22,6 +22,13 @@ def main():
     clock = pygame.time.Clock()
     dt = 0
 
+    # create sprite groups for updating and drawing
+    updatable = pygame.sprite.Group()
+    drawable = pygame.sprite.Group()
+
+    # set up the Player class to automatically add instances to these groups
+    Player.containers = (updatable, drawable)
+
     # create the player centered on the screen
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
@@ -38,8 +45,9 @@ def main():
 
         # draw frame: clear screen to black then render objects
         screen.fill("black")
-        player.update(dt)
-        player.draw(screen)
+        updatable.update(dt)
+        for drawable_sprite in drawable:
+            drawable_sprite.draw(screen)
         pygame.display.flip()
 
         # limit to 60 fps and compute delta time in seconds
