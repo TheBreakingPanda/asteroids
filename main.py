@@ -38,6 +38,7 @@ def main():
 
         # draw frame: clear screen to black then render objects
         screen.fill("black")
+        player.update(dt)
         player.draw(screen)
         pygame.display.flip()
 
