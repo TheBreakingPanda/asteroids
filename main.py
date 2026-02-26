@@ -55,7 +55,7 @@ def main():
                 if shot.collides_with(asteroid):
                     log_event("asteroid_shot")
                     shot.kill()  # Remove the shot from all groups
-                    asteroid.kill()  # Remove the asteroid from all groups
+                    asteroid.split()  # Destroy asteroid and spawn smaller fragments
                     break  # A shot can only hit one asteroid, so stop checkingw
 
         # Render: clear screen, draw all sprites, then present
